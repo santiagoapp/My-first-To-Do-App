@@ -12,5 +12,16 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+	return view('welcome');
+});
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+Route::group(['middleware' => ['auth']], function() {
+	Route::get('/tasks/get', 'TaskController@getTasks');
+	Route::get('/tasks/delete', 'TaskController@deleteTask');
+	Route::post('/tasks/create', 'TaskController@createTask');
+	Route::post('/tasks/update', 'TaskController@updateTask');
 });
