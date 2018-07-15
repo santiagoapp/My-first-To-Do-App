@@ -47,6 +47,17 @@ class TaskController extends Controller
         ]);
     }
 
+    public function updateTaskState(Request $request)
+    {
+
+        $task = Task::findOrFail($request->id);
+        $task->state = $request->state;
+        $task->save();
+        return response()->json([
+            'mensaje' => 'Estado Actualizado'
+        ]);
+    }
+
     public function updateTask(Request $request)
     {
 

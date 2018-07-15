@@ -47401,6 +47401,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -47414,6 +47422,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 id: "",
                 name: "",
                 priority: ""
+            },
+            task2: {
+                id: "",
+                state: ""
             },
             btnStatus: "Agregar",
             tasks: [],
@@ -47468,11 +47480,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         setTaskParameters: function setTaskParameters(index, id) {
-            console.log(this.tasks);
             this.task.id = id;
             this.task.name = this.tasks.data[index].name;
             this.task.priority = this.tasks.data[index].priority;
             this.btnStatus = "Actualizar";
+        },
+        setTaskState: function setTaskState(index, id) {
+            this.task2.id = id;
+            this.task2.state = this.tasks.data[index].state == 0 ? 1 : 0;
         },
         cleanTaskParameters: function cleanTaskParameters() {
             this.task.id = "";
@@ -47502,15 +47517,30 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 }
             });
         },
-        updateTask: function updateTask() {
+        updateState: function updateState(id, state, index) {
             var _this3 = this;
+
+            var url = 'tasks/updateState';
+            this.setTaskState(index, id);
+            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.post(url, this.task2).then(function (response) {
+                console.log(response.data.mensaje);
+                if (response.data.mensaje == 'Estado Actualizado') {
+                    _this3.getTasks();
+                    __WEBPACK_IMPORTED_MODULE_1_toastr___default.a.success(response.data.mensaje);
+                } else {
+                    __WEBPACK_IMPORTED_MODULE_1_toastr___default.a.error("Ha ocurrido un error");
+                }
+            });
+        },
+        updateTask: function updateTask() {
+            var _this4 = this;
 
             var url = 'tasks/update';
 
             __WEBPACK_IMPORTED_MODULE_0_axios___default.a.post(url, this.task).then(function (response) {
                 if (response.data.mensaje == 'Tarea Actualizada') {
-                    _this3.getTasks();
-                    _this3.cleanTaskParameters();
+                    _this4.getTasks();
+                    _this4.cleanTaskParameters();
                     __WEBPACK_IMPORTED_MODULE_1_toastr___default.a.success(response.data.mensaje);
                 } else {
                     __WEBPACK_IMPORTED_MODULE_1_toastr___default.a.error("Ha ocurrido un error");
@@ -47518,7 +47548,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         deleteTask: function deleteTask(id) {
-            var _this4 = this;
+            var _this5 = this;
 
             var url = 'tasks/delete?id=' + id;
             __WEBPACK_IMPORTED_MODULE_2_sweetalert___default()({
@@ -47530,7 +47560,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }).then(function (willDelete) {
                 if (willDelete) {
                     __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get(url).then(function (response) {
-                        _this4.getTasks(_this4.pagination.current_page);
+                        _this5.getTasks(_this5.pagination.current_page);
                         __WEBPACK_IMPORTED_MODULE_1_toastr___default.a.success(response.data);
                     }).catch(function (error) {
                         __WEBPACK_IMPORTED_MODULE_1_toastr___default.a.error("Ha ocurrido un error");
@@ -48237,12 +48267,76 @@ var render = function() {
                   [
                     _c("div", { staticClass: "container" }, [
                       _c("div", { staticClass: "row" }, [
-                        _c("div", { staticClass: "col-md-9" }, [
-                          _vm._v(
-                            "\n                                    " +
-                              _vm._s(task.name) +
-                              "\n                                "
-                          )
+                        _c("div", { staticClass: "col-md-1" }, [
+                          _c("form", [
+                            _c(
+                              "div",
+                              { staticClass: "form-group form-check" },
+                              [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: task.state,
+                                      expression: "task.state"
+                                    }
+                                  ],
+                                  staticClass: "form-check-input",
+                                  attrs: { type: "checkbox" },
+                                  domProps: {
+                                    checked: Array.isArray(task.state)
+                                      ? _vm._i(task.state, null) > -1
+                                      : task.state
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      $event.preventDefault()
+                                      _vm.updateState(
+                                        task.id,
+                                        task.state,
+                                        index
+                                      )
+                                    },
+                                    change: function($event) {
+                                      var $$a = task.state,
+                                        $$el = $event.target,
+                                        $$c = $$el.checked ? true : false
+                                      if (Array.isArray($$a)) {
+                                        var $$v = null,
+                                          $$i = _vm._i($$a, $$v)
+                                        if ($$el.checked) {
+                                          $$i < 0 &&
+                                            _vm.$set(
+                                              task,
+                                              "state",
+                                              $$a.concat([$$v])
+                                            )
+                                        } else {
+                                          $$i > -1 &&
+                                            _vm.$set(
+                                              task,
+                                              "state",
+                                              $$a
+                                                .slice(0, $$i)
+                                                .concat($$a.slice($$i + 1))
+                                            )
+                                        }
+                                      } else {
+                                        _vm.$set(task, "state", $$c)
+                                      }
+                                    }
+                                  }
+                                })
+                              ]
+                            )
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-md-8" }, [
+                          task.state == 0
+                            ? _c("p", [_vm._v(_vm._s(task.name))])
+                            : _c("p", [_c("del", [_vm._v(_vm._s(task.name))])])
                         ]),
                         _vm._v(" "),
                         _c("div", { staticClass: "col-md-3" }, [
@@ -48269,7 +48363,6 @@ var render = function() {
                                     attrs: {
                                       type: "radio",
                                       name: "options",
-                                      id: "option1",
                                       autocomplete: "off"
                                     }
                                   }),
@@ -48295,7 +48388,6 @@ var render = function() {
                                     attrs: {
                                       type: "radio",
                                       name: "options",
-                                      id: "option3",
                                       autocomplete: "off"
                                     }
                                   }),

@@ -41,16 +41,24 @@
                        <div v-for="(task, index) in tasks.data" :class="getClass(task.priority)" role="alert">
                         <div class="container">
                             <div class="row">
-                                <div class="col-md-9">
-                                    {{ task.name }}
+                                <div class="col-md-1">
+                                    <form>
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" v-model="task.state" @click.prevent="updateState(task.id,task.state,index)" class="form-check-input">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-md-8">
+                                    <p v-if="task.state == 0">{{ task.name }}</p>
+                                    <p v-else><del>{{ task.name }}</del></p>
                                 </div>
                                 <div class = "col-md-3">
                                     <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                         <label class="btn btn-info" @click.prevent="setTaskParameters(index,task.id)">
-                                            <input type="radio" name="options" id="option1" autocomplete="off"> Editar
+                                            <input type="radio" name="options" autocomplete="off"> Editar
                                         </label>
                                         <label class="btn btn-warning" @click.prevent="deleteTask(task.id)">
-                                            <input type="radio" name="options" id="option3" autocomplete="off" > Eliminar
+                                            <input type="radio" name="options" autocomplete="off" > Eliminar
                                         </label>
                                     </div>
                                 </div>
@@ -95,6 +103,10 @@
                     id:"",
                     name:"",
                     priority:"",
+                },
+                task2:{
+                    id:"",
+                    state:"",
                 },
                 btnStatus:"Agregar",
                 tasks:[],
@@ -146,11 +158,14 @@
                 });
             },
             setTaskParameters(index,id){
-                console.log(this.tasks)
                 this.task.id = id
                 this.task.name = this.tasks.data[index].name
                 this.task.priority = this.tasks.data[index].priority
                 this.btnStatus = "Actualizar"
+            },
+            setTaskState(index,id){
+                this.task2.id = id
+                this.task2.state = this.tasks.data[index].state == 0 ? 1 : 0;
             },
             cleanTaskParameters(){
                 this.task.id = ""
@@ -172,6 +187,20 @@
                     if (response.data.mensaje == 'Tarea guardada') {
                         this.getTasks();
                         this.cleanTaskParameters();
+                        toastr.success(response.data.mensaje);
+                    }else{
+                        toastr.error("Ha ocurrido un error");
+                    }
+                    
+                });
+            },
+            updateState(id,state, index){
+                var url = 'tasks/updateState'
+                this.setTaskState(index,id);
+                axios.post(url, this.task2).then( response=> {
+                    console.log(response.data.mensaje)
+                    if (response.data.mensaje == 'Estado Actualizado') {
+                        this.getTasks();
                         toastr.success(response.data.mensaje);
                     }else{
                         toastr.error("Ha ocurrido un error");
